@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>World Population Proportional Symbol Map</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    #title {
+      background: white;
+      padding: 12px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      border-bottom: 1px solid #ccc;
+    }
+
+    #map {
+      width: 100%;
+      height: 80vh;
+    }
+
+    #footer {
+      background: white;
+      padding: 12px;
+      font-size: 14px;
+      text-align: center;
+      border-top: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="title">World Populated Places Proportional Symbol Map</div>
+  <div id="map"></div>
+  <div id="footer">
+    Circle size represents population using the POP_MAX field. Hover over a circle to see an outline. Click a circle to view the place name and population.
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    var map = L.map('map').setView([20, 0], 2);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    function getRadius(population) {
+      return Math.sqrt(population) / 30;
+    }
+
+    fetch("populated_places.geojson")
+      .then(response => response.json())
+      .then(data => {
+        L.geoJSON(data, {
+          pointToLayer: function(feature, latlng) {
+            var population = feature.properties.POP_MAX;
+
+            return L.circleMarker(latlng, {
+              radius: getRadius(population),
+              fillColor: "orange",
+              fillOpacity: 0.7,
+              stroke: false
+            });
+          },
+
+          onEachFeature: function(feature, layer) {
+            var name = feature.properties.NAME;
+            var population = feature.properties.POP_MAX;
+
+            layer.bindPopup(
+              "<b>" + name + "</b><br>" +
+              "Population (POP_MAX): " + population
+            );
+
+            layer.on("mouseover", function() {
+              layer.setStyle({
+                stroke: true,
+                color: "black",
+                weight: 2
+              });
+            });
+
+            layer.on("mouseout", function() {
+              layer.setStyle({
+                stroke: false
+              });
+            });
+          }
+        }).addTo(map);
+      });
+  </script>
+
+</body>
+</html>

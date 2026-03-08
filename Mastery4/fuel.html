@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Fuel Problem</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<style>
+body{
+margin:0;
+padding:0;
+}
+
+#map{
+height:100vh;
+width:100%;
+}
+</style>
+
+</head>
+
+<body>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+
+// create map
+var map = L.map('map').setView([39.95,-75.16],4);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+attribution:'© OpenStreetMap contributors'
+}).addTo(map);
+
+
+// cities flying to Philadelphia
+var cities = ["Chicago","Dallas","Miami"];
+
+var lats = [41.8781,32.7767,25.7617];
+
+var lngs = [-87.6298,-96.7970,-80.1918];
+
+
+// Philadelphia location
+var phillyLatLng = L.latLng(39.9526,-75.1652);
+
+
+// city latlng objects for distance calculation
+var chicagoLatLng = L.latLng(41.8781,-87.6298);
+var dallasLatLng = L.latLng(32.7767,-96.7970);
+var miamiLatLng = L.latLng(25.7617,-80.1918);
+
+
+// distance function (meters → KM)
+function getDistance(city){
+
+return Math.round(city.distanceTo(phillyLatLng)/1000);
+
+}
+
+
+// callers
+var chicagoDistance = getDistance(chicagoLatLng);
+
+var dallasDistance = getDistance(dallasLatLng);
+
+var miamiDistance = getDistance(miamiLatLng);
+
+
+// distance array
+var distances = [
+chicagoDistance,
+dallasDistance,
+miamiDistance
+];
+
+
+// fuel calculation function
+function getFuelPercent(distanceKm){
+
+var tankCapacity = 100000;
+
+var burnRate = 12;
+
+var fuelUsed = distanceKm * burnRate;
+
+var fuelLeft = tankCapacity - fuelUsed;
+
+var percentLeft = Math.round((fuelLeft/tankCapacity)*100);
+
+return percentLeft;
+
+}
+
+
+// create markers and popups
+for (var i=0;i<cities.length;i++){
+
+var fuelPercent = getFuelPercent(distances[i]);
+
+var refillMessage="";
+
+if(fuelPercent < 75){
+
+refillMessage="<span style='color:red;font-weight:bold;'>Tank needs refill</span>";
+
+}else{
+
+refillMessage="Tank OK";
+
+}
+
+var popupText=
+"<b>Departure City:</b> "+cities[i]+"<br>"+
+"<b>Distance to Philadelphia:</b> "+distances[i]+" km<br>"+
+"<b>Fuel Remaining:</b> "+fuelPercent+"%<br>"+
+"<b>Status:</b> "+refillMessage;
+
+
+L.marker([lats[i],lngs[i]])
+.addTo(map)
+.bindPopup(popupText);
+
+}
+
+</script>
+
+</body>
+</html>
