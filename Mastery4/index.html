@@ -61,7 +61,7 @@
       return Math.sqrt(population) / 30;
     }
 
-    fetch("populated_places.geojson")
+    fetch("Mastery4/populated_places.geojson")
       .then(response => response.json())
       .then(data => {
         L.geoJSON(data, {
@@ -105,3 +105,4 @@
 
 </body>
 </html>
+
