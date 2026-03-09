@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Avocado Prices</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<style>
+body{
+margin:0;
+padding:0;
+}
+
+#map{
+height:100vh;
+width:100%;
+}
+</style>
+
+</head>
+
+<body>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+
+// map
+var map = L.map('map').setView([39.97,-75.16],12);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+attribution:'© OpenStreetMap contributors'
+}).addTo(map);
+
+
+// store data
+var stores = ["Girard ACME","South Philly ACME","Northeast Philly ACME"];
+
+var lats = [39.9716,39.9300,40.0583];
+
+var lngs = [-75.1400,-75.1700,-75.0422];
+
+
+// original avocado prices
+var priceBefore = [1.49,1.79,1.59];
+
+// random price change
+var priceChange = Math.random() * 4;
+
+// send alert one time if prices go up
+if(priceChange >= 2){
+alert("The price of avocados has increased - adjust accordingly");
+}
+
+
+// create markers and popups
+for (var i = 0; i < stores.length; i++) {
+
+var price = priceBefore[i];
+
+var popupText = "<b>" + stores[i] + "</b><br>" +
+"<span style='color:green;'><b>Original Avocado Price:</b> $" + priceBefore[i].toFixed(2) + "</span><br>";
+
+if(priceChange >= 2){
+
+price = priceBefore[i] + 2;
+
+popupText += "<span style='color:green;'><b>Updated Avocado Price:</b> $" + price.toFixed(2) + "</span>";
+
+}else{
+
+popupText += "There is no change in the price of Avocados";
+
+}
+
+L.marker([lats[i], lngs[i]])
+.addTo(map)
+.bindPopup(popupText);
+
+}
+
+</script>
+
+</body>
+</html>

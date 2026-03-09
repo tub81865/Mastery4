@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Marker Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    #map {
+      width: 100%;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    var map = L.map('map', {
+      minZoom: 2
+    }).setView([20, 0], 2);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap &copy; CARTO'
+    }).addTo(map);
+
+    var domeIcon = L.icon({
+      iconUrl: 'dome.jpg',
+      iconSize: [60, 60],
+      iconAnchor: [30, 60],
+      popupAnchor: [0, -50]
+    });
+
+    var hiddenLat = 48.8584;
+    var hiddenLng = 2.2945;
+
+    var hiddenMarker = L.marker([hiddenLat, hiddenLng], {
+      icon: domeIcon,
+      opacity: 0
+    }).addTo(map);
+
+    var markers = L.layerGroup().addTo(map);
+
+    map.on("click", function(e) {
+      markers.clearLayers();
+
+      var clickLat = e.latlng.lat;
+      var clickLng = e.latlng.lng;
+
+      var clickMarker = L.marker([clickLat, clickLng]).addTo(markers);
+
+      var hiddenLocation = L.latLng(hiddenLat, hiddenLng);
+      var clickLocation = L.latLng(clickLat, clickLng);
+      var distance = hiddenLocation.distanceTo(clickLocation) / 1609.34;
+
+      var message = "";
+
+      if (distance < 500) {
+        message = "You found it!";
+        hiddenMarker.setOpacity(1);
+        hiddenMarker.bindPopup("You found the hidden location: Eiffel Tower, Paris!").openPopup();
+        clickMarker.setOpacity(0);
+      } else if (distance >= 500 && distance < 3000) {
+        message = "Hot! You're very close.";
+      } else if (distance >= 3000 && distance < 7000) {
+        message = "Warm. You're getting closer.";
+      } else if (distance >= 7000 && distance < 10000) {
+        message = "Cold. Still far away.";
+      } else if (distance > 12500) {
+        message = "Freezing. You are extremely far away.";
+      } else {
+        message = "Very far away. Try another continent.";
+      }
+
+      clickMarker.bindPopup(message).openPopup();
+    });
+  </script>
+
+</body>
+</html>
+
+
